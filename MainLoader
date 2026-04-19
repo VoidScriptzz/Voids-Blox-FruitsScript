@@ -1,1 +1,93 @@
-loadstring(game:HttpGet("https://pastefy.app/Pp5gk8Tt/raw", true))()
+-- Universal Hub Loader - Detects Game and Loads Appropriate Script
+-- Created for: Steal a Brainrot & Blox Fruits
+
+local Players = game:GetService("Players")
+local player = Players.LocalPlayer
+
+-- Place ID Database
+local GAMES = {
+    StealABrainrot = {
+        Name = "Steal a Brainrot",
+        PlaceIds = {
+            85621847059032,    -- LTM
+            96342491571673,    -- New Players Servers
+            99392882090073,    -- Content Server
+            99606176102979,    -- Duel Server
+            109983668079237,   -- Main
+            128762245270197,   -- VC Servers
+        },
+        LoadUrl = "https://raw.githubusercontent.com/VoidScriptzz/NewVoidHub/refs/heads/main/MainLoader"
+    },
+    BloxFruits = {
+        Name = "Blox Fruits",
+        PlaceIds = {
+            2753915549,        -- First Sea
+            4442272183,        -- Second Sea
+            7449423635,        -- Third Sea
+            79091703265657,    -- Second Sea (alt)
+            85211729168715,    -- Main (alt)
+            113741252407134,   -- Main
+            114279672983750,   -- Main (alt)
+            100117331123089,   -- Third Sea (alt)
+            73902483975735,    -- Dungeons
+            -- Celebration Events
+            76401440271920,    -- Celebration Sea 1
+            117896981438898,   -- Celebration Sea 1 (alt)
+            92968389658553,    -- Celebration Sea 2
+            95165932064349,    -- Celebration Sea 2 (alt)
+            101151419317285,   -- Celebration Sea 3
+            122478697296975,   -- Celebration Sea 3 (alt)
+        },
+        LoadUrl = "https://pastefy.app/Pp5gk8Tt/raw"
+    }
+}
+
+-- Detection Function
+local function detectGame()
+    local currentPlaceId = game.PlaceId
+    
+    for gameKey, gameData in pairs(GAMES) do
+        for _, id in ipairs(gameData.PlaceIds) do
+            if currentPlaceId == id then
+                return gameData
+            end
+        end
+    end
+    
+    return nil
+end
+
+-- Execute Loadstring
+local function executeScript(url)
+    local success, result = pcall(function()
+        loadstring(game:HttpGet(url, true))()
+    end)
+    
+    if success then
+        print("✅ Script loaded successfully")
+        return true
+    else
+        warn("❌ Failed to load script: " .. tostring(result))
+        return false
+    end
+end
+
+-- Main Execution
+local detectedGame = detectGame()
+
+if detectedGame then
+    print("🎮 Detected: " .. detectedGame.Name)
+    print("📍 Place ID: " .. game.PlaceId)
+    print("🔄 Loading script...")
+    
+    local loaded = executeScript(detectedGame.LoadUrl)
+    
+    if loaded then
+        print("✅ " .. detectedGame.Name .. " hub loaded!")
+    else
+        warn("Failed to load " .. detectedGame.Name .. " hub")
+    end
+else
+    warn("❌ Unknown game (Place ID: " .. game.PlaceId .. ")")
+    warn("This script only works for Steal a Brainrot and Blox Fruits")
+end
