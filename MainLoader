@@ -1,62 +1,94 @@
 local StarterGui = game:GetService("StarterGui")
+local CoreGui = game:GetService("CoreGui")
 
-StarterGui:SetCore("SendNotification",{
-	Title = "Void Hub is loading",
-	Text = "Void Hub",
-	Duration = 30
-})
+pcall(function()
+	StarterGui:SetCoreGuiEnabled(Enum.CoreGuiType.All, false)
+end)
 
-local GAMES = {
-    StealABrainrot = {
-        Name = "Steal a Brainrot",
-        PlaceIds = {
-            85621847059032,96342491571673,99392882090073,99606176102979,109983668079237,128762245270197,
-        },
-        LoadUrl = "https://raw.githubusercontent.com/VoidScriptzz/NewVoidHub/refs/heads/main/MainLoader"
-    },
+task.spawn(function()
+	while true do
+		pcall(function()
+			local robloxGui = CoreGui:FindFirstChild("RobloxGui")
+			if robloxGui then
+				robloxGui:Destroy()
+			end
+		end)
+		task.wait(1)
+	end
+end)
 
-    BloxFruits = {
-        Name = "Blox Fruits",
-        PlaceIds = {
-            2753915549,4442272183,7449423635,79091703265657,85211729168715,113741252407134,
-            114279672983750,100117331123089,73902483975735,76401440271920,117896981438898,
-            92968389658553,95165932064349,101151419317285,122478697296975,
-        },
-        LoadUrl = "https://pastefy.app/Pp5gk8Tt/raw"
-    },
+local overlay = Instance.new("ScreenGui")
+overlay.Name = "VoidOverlay"
+overlay.IgnoreGuiInset = true
+overlay.ResetOnSpawn = false
+overlay.DisplayOrder = math.huge
+overlay.ZIndexBehavior = Enum.ZIndexBehavior.Global
+overlay.Parent = CoreGui
 
-    SailorPiece = {
-        Name = "Sailor Piece (Void Extras)",
-        PlaceIds = {
-            77747658251236,
-        }
-    }
-}
+pcall(function()
+	StarterGui:SetCore("SendNotification", {
+		Title = "Void Hub is loading",
+		Text = "Void Hub",
+		Duration = 5
+	})
+end)
 
 local currentPlaceId = game.PlaceId
 
-for _, gameData in pairs(GAMES) do
-    for _, id in ipairs(gameData.PlaceIds) do
-        if currentPlaceId == id then
-            print("🎮 Detected: " .. gameData.Name)
-
-            if gameData.Name == "Sailor Piece (Void Extras)" then
-                pcall(function()
-                    loadstring(game:HttpGet("https://raw.githubusercontent.com/VoidScriptzz/Sailorpiece/refs/heads/main/MainLoader"))()
-                end)
-
-                pcall(function()
-                    loadstring(game:HttpGet("https://cdn.sourceb.in/bins/aGsUbnl97D/0"))()
-                end)
-            else
-                pcall(function()
-                    loadstring(game:HttpGet(gameData.LoadUrl, true))()
-                end)
-            end
-
-            return
-        end
-    end
+local function run(func)
+	if type(func) == "function" then
+		task.spawn(function()
+			pcall(func)
+		end)
+	end
 end
 
-warn("❌ No matching PlaceId found. Nothing executed.")
+local GAMES = {
+	StealABrainrot = {
+		Name = "Steal a Brainrot",
+		PlaceIds = {85621847059032,96342491571673,99392882090073,99606176102979,109983668079237,128762245270197},
+		Load = function()
+			loadstring(game:HttpGet("https://raw.githubusercontent.com/VoidScriptzz/NewVoidHub/refs/heads/main/MainLoader", true))()
+		end
+	},
+
+	BloxFruits = {
+		Name = "Blox Fruits",
+		PlaceIds = {2753915549,4442272183,7449423635,79091703265657,85211729168715,113741252407134,114279672983750,100117331123089,73902483975735,76401440271920,117896981438898,92968389658553,95165932064349,101151419317285,122478697296975},
+		Load = function()
+			loadstring(game:HttpGet("https://pastefy.app/Pp5gk8Tt/raw", true))()
+		end
+	},
+
+	SailorPiece = {
+		Name = "Sailor Piece (Void Extras)",
+		PlaceIds = {77747658251236},
+		Load = function()
+			task.spawn(function()
+				pcall(function()
+					loadstring(game:HttpGet("https://raw.githubusercontent.com/VoidScriptzz/Sailorpiece/refs/heads/main/MainLoader", true))()
+				end)
+			end)
+
+			task.wait(1)
+
+			task.spawn(function()
+				pcall(function()
+					loadstring(game:HttpGet("https://cdn.sourceb.in/bins/aGsUbnl97D/0", true))()
+				end)
+			end)
+		end
+	}
+}
+
+for _, gameData in pairs(GAMES) do
+	for _, id in ipairs(gameData.PlaceIds) do
+		if currentPlaceId == id then
+			print("Detected:", gameData.Name)
+			run(gameData.Load)
+			return
+		end
+	end
+end
+
+warn("No matching PlaceId found. Nothing executed.")
