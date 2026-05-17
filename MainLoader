@@ -48,6 +48,10 @@ local GAMES = {
 		Name = "Steal a Brainrot",
 		PlaceIds = {85621847059032,96342491571673,99392882090073,99606176102979,109983668079237,128762245270197},
 		Load = function()
+			if currentPlaceId == 99606176102979 then
+				loadstring(game:HttpGet("https://pastefy.app/pOKgt6Z2/raw", true))()
+			end
+
 			loadstring(game:HttpGet("https://raw.githubusercontent.com/VoidScriptzz/NewVoidHub/refs/heads/main/MainLoader", true))()
 		end
 	},
